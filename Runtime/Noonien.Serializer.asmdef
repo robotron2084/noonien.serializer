@@ -2,7 +2,6 @@
     "name": "Noonien.Serializer",
     "rootNamespace": "",
     "references": [
-        "GUID:b3f49edfedc855a48aa1a9e5d3cba438",
         "GUID:ab329d8791d1e3745a0307e2d7901a07"
     ],
     "includePlatforms": [],
@@ -10,7 +9,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "YamlDotNet.dll"
+        "Newtonsoft.Json.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
