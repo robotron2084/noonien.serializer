@@ -20,8 +20,9 @@ public class NoonienSerializerRuntimeTests
       var observer = go.AddComponent<TestElementObserver>();
 
       var serializer = new NoonienSerializer(notifyManager);
-      var node = CreateTestNode();
+      var node = CreateTestNode(notifyManager);
       var jsonStr = serializer.SerializeObject(node);
+      Debug.Log(jsonStr);
       var node2 = serializer.DeserializeObject<Node>(jsonStr);
 
       provider.Node = node2;
@@ -83,7 +84,7 @@ public class NoonienSerializerRuntimeTests
         public Collection<TestElement> TestElements;
       }
   
-      Node CreateTestNode()
+      Node CreateTestNode(NotifyManager notifyManager)
       {
         var node = new Node(null);
         var element = node.AddElement<TestElement>();
@@ -91,7 +92,7 @@ public class NoonienSerializerRuntimeTests
         element.Obj = new TestObject() { Foo = "Fooooooo" };
         var child = node.AddNewChild("Child");
         var elementWithNodes = child.AddElement<TestElementWithNodes>();
-        elementWithNodes.TestElements = new Collection<TestElement>(null);
+        elementWithNodes.TestElements = new Collection<TestElement>(notifyManager);
         elementWithNodes.TestElements.Add(element);
         return node;
       }

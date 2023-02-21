@@ -59,6 +59,7 @@ namespace com.enemyhideout.noonien.serializer
       {typeof(Node), new HashSet<string>()
       {
         nameof(Node.ChildrenCount),
+        nameof(Node.ElementsCount),
         nameof(Node.NotifyManager),
       }},
       {typeof(Element), new HashSet<string>()
