@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using com.enemyhideout.noonien;
 using Newtonsoft.Json;
@@ -8,23 +9,20 @@ namespace com.enemyhideout.noonien.serializer
 {
   public class NoonienContractResolver : DefaultContractResolver
   {
-
     private object[] _constructorParams;
     private INotifyManager _notifyManager;
 
     public NoonienContractResolver(INotifyManager notifyManager)
     {
       _notifyManager = notifyManager;
-      _constructorParams = new object[] { null };
+      _constructorParams = new object[] { _notifyManager };
     }
       
     protected override JsonArrayContract CreateArrayContract(Type objectType)
     {
       var arrayContract = base.CreateArrayContract(objectType);
-      //Debug.Log($"array: {objectType}");
       if (objectType == typeof(NodeCollection))
       {
-        //Debug.Log("Found array type of collection!");
         arrayContract.DefaultCreator = () =>
         {
           return new Collection<Node>(null);
@@ -33,7 +31,6 @@ namespace com.enemyhideout.noonien.serializer
 
       if (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Collection<>))
       {
-        // Debug.Log($"generic creator for {objectType}");
         // Get the constructor that passes a notify manager in.
         Type[] types = new Type[1];
         types[0] = typeof(INotifyManager);
@@ -56,37 +53,40 @@ namespace com.enemyhideout.noonien.serializer
         
       return contract;
     }
-      
+
+    private Dictionary<Type, HashSet<string>> ignoredProperties = new Dictionary<Type, HashSet<string>>()
+    {
+      {typeof(Node), new HashSet<string>()
+      {
+        nameof(Node.ChildrenCount),
+        nameof(Node.NotifyManager),
+      }},
+      {typeof(Element), new HashSet<string>()
+      {
+        nameof(Element.Parent),
+        nameof(Element.Node),
+        nameof(Element.Version),
+        nameof(Element.Name)
+      }}
+    };
+
+    private static bool IsPropertyIgnored(Type type, String propertyName, Dictionary<Type, HashSet<string>> propertyMap)
+    {
+      if (propertyMap.TryGetValue(type, out var hashSet))
+      {
+        return hashSet.Contains(propertyName);
+      }
+
+      return false;
+    }
+    
     protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
     {
       JsonProperty property = base.CreateProperty(member, memberSerialization);
-
-      if (property.DeclaringType == typeof(Node) && property.PropertyName == "ChildrenCount")
+      if (IsPropertyIgnored(property.DeclaringType, property.PropertyName, ignoredProperties))
       {
         property.Ignored = true;
       }
-      if (property.DeclaringType == typeof(Node) && property.PropertyName == "NotifyManager")
-      {
-        property.Ignored = true;
-      }
-      if (property.DeclaringType == typeof(Element) && property.PropertyName == "Parent")
-      {
-        property.Ignored = true;
-      }
-      if (property.DeclaringType == typeof(Element) && property.PropertyName == "Node")
-      {
-        property.Ignored = true;
-      }
-      if (property.DeclaringType == typeof(Element) && property.PropertyName == "Version")
-      {
-        property.Ignored = true;
-      }
-      if (property.DeclaringType == typeof(Element) && property.PropertyName == "Name")
-      {
-        property.Ignored = true;
-      }
-
-        
       return property;
     }
   }
