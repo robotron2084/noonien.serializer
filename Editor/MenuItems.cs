@@ -5,7 +5,7 @@ using com.enemyhideout.noonien.serializer;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace com.enemyhideout.noonien.serializer
 {
   public class MenuItems
   {
@@ -20,8 +20,9 @@ namespace Editor
         var root = new Node(null, "Root");
         var jsonStr = serializer.SerializeObject(root);
         var filename = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, "Node.asset"));
-        var textAsset = new TextAsset(jsonStr);
-        ProjectWindowUtil.CreateAsset(textAsset, filename);
+        var graphAsset = ScriptableObject.CreateInstance<GraphDocument>();
+        graphAsset.Json = jsonStr;
+        ProjectWindowUtil.CreateAsset(graphAsset, filename);
       }
       else
       {
@@ -31,20 +32,13 @@ namespace Editor
     [MenuItem("Assets/Noonien/Open Graph")]
     public static void OpenGraph()
     {
-      var obj = Selection.activeObject;
-      if (FileUtils.IsAssetAGraph(obj))
+      var obj = (GraphDocument)Selection.activeObject;
+      
+      if (obj != null)
       {
-        var serializer = new NoonienSerializer(null);
-        var textAsset = (TextAsset)obj;
-        var graph = serializer.DeserializeObject<Node>(textAsset.text);
-        NodeGraphEditor.Root = graph;
+        var graphAsset = obj;
+        NodeGraphEditor.Root = graphAsset.Root;
         NodeGraphEditor wnd = EditorWindow.GetWindow<NodeGraphEditor>();
-        
-        Debug.Log("Yep");
-      }
-      else
-      {
-        Debug.Log($"Nope {obj}");
       }
     }
 

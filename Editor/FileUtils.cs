@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using com.enemyhideout.noonien.serializer;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace com.enemyhideout.noonien.serializer
 {
   public class FileUtils
   {
@@ -30,20 +31,5 @@ namespace Editor
       return false;
     }
 
-    public static bool IsAssetAGraph(Object o)
-    {
-      if (o == null)
-      {
-        return false;
-      }
-      var path = AssetDatabase.GetAssetPath(o.GetInstanceID());
-      if (Path.GetExtension(path) == ".asset")
-      {
-        return true;
-      }
-
-      return false;
-
-    }
   }
 }
